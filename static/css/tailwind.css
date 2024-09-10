@@ -1,0 +1,29 @@
+/* Tailwind base styles */
+@tailwind base;
+
+/* Tailwind component styles */
+@tailwind components;
+
+/* Tailwind utility styles */
+@tailwind utilities;
+
+/* Custom styles */
+body {
+    @apply antialiased;
+}
+
+.container {
+    @apply px-4;
+}
+
+@screen sm {
+    .container {
+        @apply px-6;
+    }
+}
+
+@screen md {
+    .container {
+        @apply px-8;
+    }
+}
