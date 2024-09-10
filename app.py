@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from models import db, Subscriber
+from email_validator import validate_email, EmailNotValidError
 
 class Base(DeclarativeBase):
     pass
@@ -10,6 +11,13 @@ class Base(DeclarativeBase):
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 db.init_app(app)
+
+def is_valid_email(email):
+    try:
+        validate_email(email)
+        return True
+    except EmailNotValidError:
+        return False
 
 @app.route('/')
 def index():
@@ -23,6 +31,13 @@ def subscribe():
 
     if not full_name or not email:
         return jsonify({"error": "Full name and email are required"}), 400
+
+    if not is_valid_email(email):
+        return jsonify({"error": "Invalid email address"}), 400
+
+    existing_subscriber = Subscriber.query.filter_by(email=email).first()
+    if existing_subscriber:
+        return jsonify({"error": "Email already subscribed"}), 400
 
     new_subscriber = Subscriber(full_name=full_name, email=email)
     db.session.add(new_subscriber)
