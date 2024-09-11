@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - StartupX</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold">Admin Dashboard</h1>
+            <a href="{{ url_for('admin_logout') }}" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Logout</a>
+        </header>
+        <main class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h2 class="text-2xl font-semibold mb-4">Waitlist Entries</h2>
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="px-4 py-2 text-left">ID</th>
+                        <th class="px-4 py-2 text-left">Full Name</th>
+                        <th class="px-4 py-2 text-left">Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subscriber in subscribers %}
+                    <tr class="border-b">
+                        <td class="px-4 py-2">{{ subscriber.id }}</td>
+                        <td class="px-4 py-2">{{ subscriber.full_name }}</td>
+                        <td class="px-4 py-2">{{ subscriber.email }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </main>
+    </div>
+</body>
+</html>

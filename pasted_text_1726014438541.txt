@@ -1,17 +1,13 @@
-from flask_migrate import Migrate
-from flask import Flask, render_template, request, jsonify, url_for, redirect
-from flask_login import LoginManager, login_user, login_required, logout_user
+from flask_login import LoginManager
+from models import User
 import os
-from models import db, Subscriber, User
+from flask import render_template, request, jsonify
+from sqlalchemy.orm import DeclarativeBase
+from models import db, Subscriber
 from email_validator import validate_email, EmailNotValidError
 
-
-app = Flask(__name__)
-
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "your-secret-key")  # Add this line
-db.init_app(app)
-migrate = Migrate(app,db)
+class Base(DeclarativeBase):
+    pass
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'admin_login'
@@ -19,6 +15,9 @@ login_manager.login_view = 'admin_login'
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+    
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+db.init_app(app)
 
 def is_valid_email(email):
     try:
@@ -49,7 +48,7 @@ def subscribe():
 
     new_subscriber = Subscriber(full_name=full_name, email=email)
     db.session.add(new_subscriber)
-
+    
     try:
         db.session.commit()
         return jsonify({"message": "Successfully subscribed!"}), 201
@@ -80,12 +79,22 @@ def admin_logout():
 def admin_dashboard():
     subscribers = Subscriber.query.all()
     return render_template('admin_dashboard.html', subscribers=subscribers)
+    
 
 if __name__ == '__main__':
     with app.app_context():
+        db.create_all()
         if not User.query.filter_by(username='admin').first():
             admin_user = User(username='admin')
             admin_user.set_password('password')
             db.session.add(admin_user)
             db.session.commit()
     app.run(host="0.0.0.0", port=5000)
+    
+    with app.app_context():
+        db.create_all()
+        if not User.query.filter_by(username='admin').first():
+            admin_user = User(username='admin')
+            admin_user.set_password('password')
+            db.session.add(admin_user)
+            db.session.commit()
